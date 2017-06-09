@@ -1,32 +1,24 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
+using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.WebApi;
-using Cineplex.Bot.Core;
-using Cineplex.Bot.Web.Filters;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Azure;
+using Bot.Core;
+using Bot.Web.Filter;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Internals.Fibers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using NodaTime;
-using NodaTime.Serialization.JsonNet;
-using Bot.Core;
 
 namespace Bot.Web
 {
-    /// <summary>
-    /// Entry point for the web application.
-    /// </summary>
-    public class BotApplication : HttpApplication
+    public class WebApiApplication : System.Web.HttpApplication
     {
-        /// <summary>
-        /// Application start.
-        /// </summary>
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(ConfigureWebApi);
