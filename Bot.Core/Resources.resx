@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Dialog_BotDescription" xml:space="preserve">
+    <value>bla bla</value>
+  </data>
+  <data name="Dialog_HiAgain" xml:space="preserve">
+    <value>Hi again!</value>
+  </data>
+  <data name="Dialog_HiThere" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Dialog_Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
   <data name="GetConversationInfoScorable_Match" xml:space="preserve">
     <value>/GetConversationInfo</value>
   </data>

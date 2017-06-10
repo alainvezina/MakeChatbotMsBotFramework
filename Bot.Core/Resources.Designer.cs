@@ -61,6 +61,42 @@ namespace Bot.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to bla bla.
+        /// </summary>
+        internal static string Dialog_BotDescription {
+            get {
+                return ResourceManager.GetString("Dialog_BotDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hi again!.
+        /// </summary>
+        internal static string Dialog_HiAgain {
+            get {
+                return ResourceManager.GetString("Dialog_HiAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome.
+        /// </summary>
+        internal static string Dialog_HiThere {
+            get {
+                return ResourceManager.GetString("Dialog_HiThere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome.
+        /// </summary>
+        internal static string Dialog_Welcome {
+            get {
+                return ResourceManager.GetString("Dialog_Welcome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /GetConversationInfo.
         /// </summary>
         internal static string GetConversationInfoScorable_Match {
