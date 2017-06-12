@@ -123,6 +123,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="CoreModule.cs" />
+    <Compile Include="Dialogs\Flows\MenuFlow.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Entities\ApplicationContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -137,10 +138,13 @@
     <Compile Include="Services\IDialogFactory.cs" />
     <Compile Include="Services\Impl\DialogFactory.cs" />
     <Compile Include="Utilities\Autofac\ConfigurationParameter.cs" />
+    <Compile Include="Utilities\Extensions\BotUserExtensions.cs" />
     <Compile Include="Utilities\Extensions\ContainerBuilderExtensions.cs" />
     <Compile Include="Utilities\Extensions\StringExtensions.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Dialogs\Tasks\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="ApplicationInsights.config" />

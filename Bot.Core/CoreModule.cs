@@ -6,6 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Bot.Core.Scrorables;
 using Bot.Core.Utilities.Extensions;
+using Bot.Core.Dialogs;
+using Bot.Core.Services;
+using Bot.Core.Services.Impl;
+using Bot.Core.Dialogs.Flows;
 
 namespace Bot.Core
 {
@@ -17,6 +21,11 @@ namespace Bot.Core
             base.Load(builder);
 
             builder
+                .RegisterScopedService<IDialogFactory, DialogFactory>();
+
+            builder
+                .RegisterDialog<MenuFlow>()
+                .RegisterDialog<RootDialog>()
                 .RegisterSimpleScorable<GetConversationInfoScorable>()
                 .RegisterSimpleScorable<ResetScorable>();
         }
