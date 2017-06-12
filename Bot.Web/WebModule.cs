@@ -39,15 +39,6 @@ namespace Bot.Web
                 .WithParameter(new NamedParameter("includeStackTrace", true))
                 .AsSelf()
                 .SingleInstance();
-
-            var azureTableLoggerConnectionString = CloudConfigurationManager.GetSetting("AzureTableLoggerConnectionString");
-            if (!string.IsNullOrEmpty(azureTableLoggerConnectionString))
-            {
-                if (CloudStorageAccount.TryParse(azureTableLoggerConnectionString, out var cloudStorageAccount))
-                {
-                    builder.RegisterModule(new TableLoggerModule(cloudStorageAccount, "conversations"));
-                }
-            }
         }
     }
 }

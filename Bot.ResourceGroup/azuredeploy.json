@@ -1,8 +1,248 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {},
-  "variables": {},
-  "resources": [],
-  "outputs": {}
+    /****************************************************************** ARM TEMPLATE *******************************************************************/
+    //
+    // Best practices:
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-best-practices
+    //
+    // Functions you can use:
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-functions
+    //
+    // Resources naming conventions:
+    // https://docs.microsoft.com/en-us/azure/guidance/guidance-naming-conventions
+    //
+    /***************************************************************************************************************************************************/
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+
+    /******************************************************************* PARAMETERS ********************************************************************/
+    //
+    // Minimize parameters whenever possible. If you can use a variable or a literal, do so.
+    //
+    // Parameter names should follow camelCasing.
+    // Provide a description in the metadata for every parameter.
+    // Define default values for parameters (except for passwords and SSH keys)
+    // Use securestring for all passwords and secrets.
+    //
+    // When possible, avoid using a parameter to specify the location. Instead, use the location property of the resource group By using
+    // the resourceGroup().location expression.
+    //
+    // Only provide parameters for:
+    //      Settings you wish to vary by environment (such as sku, size, or capacity).
+    //      Resource names you wish to specify for easy identification.
+    //      Values you use often to complete other tasks (such as admin user name).
+    //      Secrets (such as passwords)
+    //      The number or array of values to use when creating multiple instances of a resource type.
+    //
+    /***************************************************************************************************************************************************/
+    "parameters": {
+        "hostingEnvironment": {
+            "type": "string",
+            "defaultValue": "Production",
+            "allowedValues": [
+                "Development",
+                "Test",
+                "Staging",
+                "Production"
+            ],
+            "metadata": {
+                "description": "The name of the environment set as the ENVIRONMENT environment variable."
+            }
+        },
+
+        "appName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "webapitemplate",
+            "metadata": {
+                "description": "The base name of the solution from which Azure Resources names will be extrapolated."
+            }
+        },
+
+        "botId": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "The Microsoft Bot Id (Bot Handle) for the Bot."
+            }
+        },
+
+        "microsoftAppId": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "The Microsoft App Id for the Bot."
+            }
+        },
+
+        "microsoftAppPassword": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "The Microsoft App Password for the Bot."
+            }
+        },
+
+        "appServicePlanSku": {
+            "type": "string",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1"
+                // Do not allow initial instances above S1.
+            ],
+            "defaultValue": "F1",
+            "metadata": {
+                "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+            }
+        }
+    },
+
+    /******************************************************************** VARIABLES ********************************************************************/
+    //
+    // Use variables for values that you need to use more than once in a template. If a value is used only once, a hard-coded value makes
+    // your template easier to read.
+    //
+    // Include variables for resource names that need to be unique.
+    //
+    // You can group variables into complex objects. You can reference a value from a complex object in the format 'variable.subentry'.
+    // Grouping variables helps you track related variables and improves readability of the template.
+    //
+    // See https://docs.microsoft.com/en-us/azure/guidance/guidance-naming-conventions for recommended resource naming conventions.
+    /***************************************************************************************************************************************************/
+    "variables": {
+        "location": "[resourceGroup().location]",
+
+        "lowerCaseAppName": "[toLower(parameters('appName'))]",
+
+        "appServicePlan": {
+            "name": "[concat(parameters('appName'),'ServicePlan')]",
+            "sku": "[parameters('appServicePlanSku')]",
+            "instanceCount": 1
+        },
+
+        "api": {
+            "name": "[variables('lowerCaseAppName')]"
+        },
+
+        "appInsights": {
+            "name": "[parameters('appName')]",
+            "location": "East US" // APP Insights is only available in East US at the time of writing this template.
+        },
+
+        "tableLogger": {
+            "name": "[concat(parameters('appName'), 'logs')]",
+            "sku": "Standard_LRS"
+        },
+
+        // Hosting environment variable keys
+        "appSettingsKeys": {
+            "environment": "Environment",
+            "appInsightInstrumentationKey": "ApplicationInsightsInstrumentationKey",
+            "botId": "BotId",
+            "microsoftAppId": "MicrosoftAppId",
+            "microsoftAppPassword": "MicrosoftAppPassword"
+        }
+    },
+
+    /******************************************************************** RESOURCES ********************************************************************/
+    //
+    // Specify comments for each resource in the template to help other contributors understand the purpose of the
+    //  resource.
+    //
+    // If you use a public endpoint in your template (such as a blob storage public endpoint), do not hardcode the
+    // namespace. Use the reference function to retrieve the namespace dynamically.
+    //
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-functions#reference
+    //
+    /***************************************************************************************************************************************************/
+    "resources": [
+
+        /********* APP SERVICE PLAN *********/
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2015-08-01",
+            "name": "[variables('appServicePlan').name]",
+            "sku": {
+                "name": "[variables('appServicePlan').sku]",
+                "capacity": "[variables('appServicePlan').instanceCount]" // Defines the maximum instance count when scaling out.
+            },
+
+            "location": "[variables('location')]",
+            "dependsOn": [],
+            "properties": {
+                "name": "[variables('appServicePlan').name]",
+                "numberOfWorkers": "[variables('appServicePlan').instanceCount]" // Defines the initial instance count
+            }
+        },
+
+        /********* API APP *********/
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2015-08-01",
+            "name": "[variables('api').name]",
+            "kind": "api",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan').name)]"
+            ],
+            "properties": {
+                "name": "[variables('api').name]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan').name)]"
+            },
+            /******* API APP SUB RESOURCES ******/
+            "resources": [
+                {
+                    /****** APP SETTINGS ******/
+                    "name": "appsettings",
+                    "type": "config",
+                    "apiVersion": "2015-08-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('api').name)]",
+                        "[resourceId('Microsoft.Insights/components', variables('appInsights').name)]"
+                    ],
+                    "properties": {
+                        "[variables('appSettingsKeys').environment]": "[parameters('hostingEnvironment')]",
+                        "[variables('appSettingsKeys').appInsightInstrumentationKey]": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2014-04-01').InstrumentationKey]",
+                        "[variables('appSettingsKeys').botId]": "[parameters('botId')]",
+                        "[variables('appSettingsKeys').microsoftAppId]": "[parameters('microsoftAppId')]",
+                        "[variables('appSettingsKeys').microsoftAppPassword]": "[parameters('microsoftAppPassword')]"
+                    }
+                }
+            ]
+        },
+
+        /********* APPLICATION INSIGHTS *********/
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2014-04-01",
+            "kind": "web",
+            "name": "[variables('appInsights').name]",
+            "location": "[variables('appInsights').location]",
+            "dependsOn": [
+                "[concat('Microsoft.Web/sites/', variables('api').name)]"
+            ],
+            "properties": {
+                "ApplicationId": "[variables('lowerCaseAppName')]"
+            }
+        }
+    ],
+
+    /********************************************************************* OUTPUTS *********************************************************************/
+    //
+    // If a template creates publicIPAddresses, it should have an outputs section that returns details of the IP address and the fully qualified
+    // domain name.
+    //
+    // These output values enable you to easily retrieve these details after deployment. When referencing the resource, use the API version that
+    // was used to create it.
+    //
+    /***************************************************************************************************************************************************/
+    "outputs": {
+        "apiUrl": {
+            "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites',variables('api').name), '2015-08-01').defaultHostName)]",
+            "type": "string"
+        }
+    }
 }

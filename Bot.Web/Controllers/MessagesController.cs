@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 using Bot.Web.Models.Errors;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Connector;
 using Autofac;
-using Bot.Core;
 using Bot.Core.Dialogs;
 
 namespace Bot.Web.Controllers
@@ -64,7 +61,7 @@ namespace Bot.Web.Controllers
                 {
                     if (update.MembersAdded.Any(o => o.Id == message.Recipient.Id))
                     {
-                        var reply = message.CreateReply("Cineplex Chatbot can help you find movies you likes and buy tickets from Canada's most popular destination for movies, showtimes, tickets, and trailers.");
+                        var reply = message.CreateReply("Welcome new user!");
                         ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
                         await connector.Conversations.ReplyToActivityAsync(reply);
 
