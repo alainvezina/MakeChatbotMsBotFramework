@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Bot.Core.Services;
 using Microsoft.Bot.Builder.Dialogs;
 using Bot.Core.Dialogs.Flows;
+using Microsoft.Bot.Connector;
 
 namespace Bot.Core.Dialogs
 {
@@ -28,26 +29,28 @@ namespace Bot.Core.Dialogs
         /// <inheritdoc/>
         public Task StartAsync(IDialogContext context)
         {
-            context.Wait(LaunchMenuFlow);
+            context.Wait(RepeatAfterMeFlow);
             return Task.CompletedTask;
         }
 
         /// <summary>
         /// Launch Menu flow
         /// </summary>
-        private Task LaunchMenuFlow(IDialogContext context, IAwaitable<object> result)
+        private Task RepeatAfterMeFlow(IDialogContext context, IAwaitable<object> result)
         {
-            context.Call(_dialogFactory.Create<MenuFlow>(), AfterMenuFlow);
+            context.Wait(AfterRepeatAfterMeFlow);
             return Task.CompletedTask;
         }
 
         /// <summary>
         /// Catch menu flow end result
         /// </summary>
-        private async Task AfterMenuFlow(IDialogContext context, IAwaitable<object> awaitable)
+        private async Task AfterRepeatAfterMeFlow(IDialogContext context, IAwaitable<object> awaitable)
         {
             var result = await awaitable;
-            context.Done<object>(null);
+
+            await context.PostAsync($"You said {((Activity)result).Text}");
+            await RepeatAfterMeFlow(context, awaitable);
         }
 
     }
